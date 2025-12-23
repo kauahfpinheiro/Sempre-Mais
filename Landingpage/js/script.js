@@ -1,4 +1,4 @@
-// ===== Show Menu =====
+// ===== Menu Mobile =====
 const navMenu = document.getElementById('nav-menu');
 const navToggle = document.getElementById('nav-toggle');
 const navClose = document.getElementById('nav-close');
@@ -7,6 +7,7 @@ const navClose = document.getElementById('nav-close');
 if (navToggle) {
     navToggle.addEventListener('click', () => {
         navMenu.classList.add('show-menu');
+        navToggle.setAttribute('aria-expanded', 'true');
     });
 }
 
@@ -14,6 +15,7 @@ if (navToggle) {
 if (navClose) {
     navClose.addEventListener('click', () => {
         navMenu.classList.remove('show-menu');
+        navToggle.setAttribute('aria-expanded', 'false');
     });
 }
 
@@ -23,6 +25,9 @@ const navLink = document.querySelectorAll('.nav__link');
 function linkAction() {
     const navMenu = document.getElementById('nav-menu');
     navMenu.classList.remove('show-menu');
+    if (navToggle) {
+        navToggle.setAttribute('aria-expanded', 'false');
+    }
 }
 navLink.forEach(n => n.addEventListener('click', linkAction));
 
@@ -30,9 +35,9 @@ navLink.forEach(n => n.addEventListener('click', linkAction));
 function scrollHeader() {
     const header = document.getElementById('header');
     if (this.scrollY >= 50) {
-        header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+        header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.08)';
     } else {
-        header.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+        header.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
     }
 }
 window.addEventListener('scroll', scrollHeader);
@@ -82,7 +87,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// ===== Contact Form =====
+// ===== Contact Form Validation =====
 const contactForm = document.getElementById('contact-form');
 
 if (contactForm) {
@@ -90,27 +95,59 @@ if (contactForm) {
         e.preventDefault();
         
         // Get form values
-        const formData = new FormData(contactForm);
-        const name = contactForm.querySelector('input[type="text"]').value;
-        const email = contactForm.querySelector('input[type="email"]').value;
-        const phone = contactForm.querySelector('input[type="tel"]').value;
-        const message = contactForm.querySelector('textarea').value;
+        const nameInput = contactForm.querySelector('input[type="text"]');
+        const emailInput = contactForm.querySelector('input[type="email"]');
+        const phoneInput = contactForm.querySelector('input[type="tel"]');
+        const messageInput = contactForm.querySelector('textarea');
 
-        // Simple validation
-        if (name && email && phone && message) {
-            // Show success message
-            showMessage('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
-            contactForm.reset();
-        } else {
-            showMessage('Por favor, preencha todos os campos.', 'error');
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim();
+        const phone = phoneInput.value.trim();
+        const message = messageInput.value.trim();
+
+        // Validation
+        if (!name) {
+            showMessage('Por favor, insira seu nome.', 'error');
+            nameInput.focus();
+            return;
         }
+
+        if (!email || !isValidEmail(email)) {
+            showMessage('Por favor, insira um e-mail válido.', 'error');
+            emailInput.focus();
+            return;
+        }
+
+        if (!phone || phone.length < 10) {
+            showMessage('Por favor, insira um telefone válido.', 'error');
+            phoneInput.focus();
+            return;
+        }
+
+        if (!message || message.length < 10) {
+            showMessage('A mensagem deve ter pelo menos 10 caracteres.', 'error');
+            messageInput.focus();
+            return;
+        }
+
+        // Show success message
+        showMessage('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
+        contactForm.reset();
     });
+}
+
+// ===== Email Validation =====
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
 }
 
 // ===== Show Message Function =====
 function showMessage(message, type) {
     const messageDiv = document.createElement('div');
     messageDiv.textContent = message;
+    messageDiv.setAttribute('role', 'alert');
+    messageDiv.setAttribute('aria-live', 'polite');
     messageDiv.style.cssText = `
         position: fixed;
         top: 100px;
@@ -122,11 +159,12 @@ function showMessage(message, type) {
         z-index: 1000;
         animation: slideInFromRight 0.5s ease;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        max-width: 90%;
     `;
 
     if (type === 'success') {
         messageDiv.style.backgroundColor = '#2ecc71';
-    } else {
+    } else if (type === 'error') {
         messageDiv.style.backgroundColor = '#e74c3c';
     }
 
@@ -135,9 +173,11 @@ function showMessage(message, type) {
     setTimeout(() => {
         messageDiv.style.animation = 'fadeOut 0.5s ease';
         setTimeout(() => {
-            document.body.removeChild(messageDiv);
+            if (messageDiv.parentNode) {
+                document.body.removeChild(messageDiv);
+            }
         }, 500);
-    }, 3000);
+    }, 4000);
 }
 
 // ===== Scroll Reveal Animation =====
@@ -180,39 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 100);
 });
 
-// ===== Social Links (to be populated later) =====
-function addSocialLinks(links) {
-    const socialContainer = document.getElementById('social-links');
-    if (socialContainer && links) {
-        socialContainer.innerHTML = '';
-        
-        const socialIcons = {
-            facebook: 'fab fa-facebook-f',
-            instagram: 'fab fa-instagram',
-            whatsapp: 'fab fa-whatsapp',
-            twitter: 'fab fa-twitter',
-            youtube: 'fab fa-youtube',
-            linkedin: 'fab fa-linkedin-in',
-            tiktok: 'fab fa-tiktok'
-        };
 
-        Object.entries(links).forEach(([platform, url]) => {
-            if (url && socialIcons[platform]) {
-                const link = document.createElement('a');
-                link.href = url;
-                link.target = '_blank';
-                link.rel = 'noopener noreferrer';
-                link.className = 'footer__social-link';
-                link.innerHTML = `<i class="${socialIcons[platform]}"></i>`;
-                socialContainer.appendChild(link);
-            }
-        });
-    }
-}
-
-// Export function for later use
-window.addSocialLinks = addSocialLinks;
-    
 // ===== Carousel Functionality =====
 let currentSlide = 0;
 const slides = document.querySelectorAll('.carousel__slide');
