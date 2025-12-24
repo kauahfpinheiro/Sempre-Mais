@@ -95,14 +95,16 @@ if (contactForm) {
         e.preventDefault();
         
         // Get form values
-        const nameInput = contactForm.querySelector('input[type="text"]');
-        const emailInput = contactForm.querySelector('input[type="email"]');
-        const phoneInput = contactForm.querySelector('input[type="tel"]');
-        const messageInput = contactForm.querySelector('textarea');
+        const nameInput = contactForm.querySelector('#contact-name');
+        const emailInput = contactForm.querySelector('#contact-email');
+        const phoneInput = contactForm.querySelector('#contact-phone');
+        const subjectInput = contactForm.querySelector('#contact-subject');
+        const messageInput = contactForm.querySelector('#contact-message');
 
         const name = nameInput.value.trim();
         const email = emailInput.value.trim();
         const phone = phoneInput.value.trim();
+        const subject = subjectInput.value.trim();
         const message = messageInput.value.trim();
 
         // Validation
@@ -124,15 +126,23 @@ if (contactForm) {
             return;
         }
 
+        if (!subject || subject.length < 3) {
+            showMessage('Por favor, insira um assunto.', 'error');
+            subjectInput.focus();
+            return;
+        }
+
         if (!message || message.length < 10) {
             showMessage('A mensagem deve ter pelo menos 10 caracteres.', 'error');
             messageInput.focus();
             return;
         }
 
-        // Show success message
-        showMessage('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
-        contactForm.reset();
+        // Abre o Gmail Compose com os campos preenchidos para o usuário confirmar e enviar
+        const corpo = `${message}\n\n---\nNome: ${name}\nEmail: ${email}\nTelefone: ${phone}`;
+        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=contato@sempremais.com.br&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(corpo)}`;
+        window.open(gmailUrl, '_blank');
+        showMessage('Abrindo o Gmail para você confirmar o envio...', 'success');
     });
 }
 
