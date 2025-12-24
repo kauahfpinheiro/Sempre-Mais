@@ -130,35 +130,10 @@ if (contactForm) {
             return;
         }
 
-        // Tudo válido — abrir o Gmail Compose com os dados
-        const subjectInput = contactForm.querySelector('#subject');
-        const subject = subjectInput ? subjectInput.value.trim() : 'Contato pelo site';
-
-        abrirEmail(name, email, subject, message, phone);
-
-        // Mostrar feedback e resetar form
-        showMessage('Abrindo sua conta do Gmail para enviar a mensagem...', 'success');
+        // Show success message
+        showMessage('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
         contactForm.reset();
     });
-}
-
-// ===== Abrir Gmail Compose =====
-function abrirEmail(name, email, subject, message, phone) {
-    if (!email) {
-        alert('Por favor, preencha seu email');
-        return;
-    }
-
-    if (!subject || !message) {
-        alert('Por favor, preencha o assunto e a mensagem');
-        return;
-    }
-
-    const corpo = `${message}\n\n---\nNome: ${name}\nEmail: ${email}${phone ? `\nTelefone: ${phone}` : ''}`;
-
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=contato@sempremais.com.br&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(corpo)}`;
-
-    window.open(gmailUrl, '_blank');
 }
 
 // ===== Email Validation =====
@@ -356,3 +331,4 @@ function handleSwipe() {
         resetAutoSlide();
     }
 }
+
